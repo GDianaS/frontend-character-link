@@ -7,6 +7,10 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Works from './scenes/works'
 import Charts from './scenes/charts'
 import WorkDetail from './scenes/workDetail'
+import Home from './scenes/home'
+import WorkCreate from './scenes/workCreate'
+import About from './scenes/about'
+import Library from './scenes/library'
 
 function App() {
   // const [array, setArray] = useState([])
@@ -26,10 +30,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
 
-          <Route index element={<Navigate to="/works" replace />} />
+          <Route index element={<Home/>} />
           <Route path="/works" element={<Works/>} />
+          <Route path="/creatework" element={<WorkCreate/>} />
           <Route path="/works/:id" element={<WorkDetail/>}/>
           <Route path="/charts" element={<Charts/>} />
+          <Route path="/about" element={<About/>} />
+          <Route path="/library" element={<Library/>} />
 
         </Route>
       </Routes>

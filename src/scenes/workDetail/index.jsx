@@ -1,273 +1,148 @@
-// src/scenes/workDetail/index.jsx
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { workService, characterService } from './../../api';
+import { ArrowLeftIcon, ChevronLeftIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
 
-const WorkDetail = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [work, setWork] = useState(null);
-  const [characters, setCharacters] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showCharacterForm, setShowCharacterForm] = useState(false);
+const WorkDetails = () => {
 
-  const [characterForm, setCharacterForm] = useState({
-    name: '',
-    description: '',
-    alias: '',
-    status: 'Vivo',
-    image: ''
-  });
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
-  // Usar useCallback para evitar o warning do ESLint
-  const fetchWorkDetails = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log('Buscando obra com ID:', id); // Debug
-      
-      const [workRes, charactersRes] = await Promise.all([
-        workService.getById(id),
-        workService.getCharacters(id)
-      ]);
-      
-      console.log('Resposta da obra:', workRes.data); // Debug
-      console.log('Resposta dos personagens:', charactersRes.data); // Debug
-      
-      setWork(workRes.data.data.work);
-      setCharacters(charactersRes.data.data.characters || []);
-    } catch (err) {
-      console.error('Erro ao buscar detalhes:', err);
-      console.error('Resposta do erro:', err.response?.data); // Debug
-      setError(err.response?.data?.message || 'Erro ao carregar obra');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]); // Adicionar id como dependência
-
-  useEffect(() => {
-    fetchWorkDetails();
-  }, [fetchWorkDetails]); // Agora fetchWorkDetails está na dependência
-
-  const handleCharacterSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const data = {
-        ...characterForm,
-        alias: characterForm.alias.split(',').map(a => a.trim()).filter(Boolean)
-      };
-      await characterService.createForWork(id, data);
-      setShowCharacterForm(false);
-      setCharacterForm({
-        name: '',
-        description: '',
-        alias: '',
-        status: 'Vivo',
-        image: ''
-      });
-      fetchWorkDetails();
-    } catch (err) {
-      console.error('Erro ao criar personagem:', err);
-      alert('Erro ao criar personagem: ' + (err.response?.data?.message || err.message));
-    }
+  // Dados de teste
+  const work = {
+    title: "Harry Potter - E A Pedra Filosofal",
+    author: "J.K. Rowling",
+    category: "livro",
+    coverImage: "https://images.unsplash.com/photo-1586563192986-827afefd7438?q=80&w=682&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: `Harry Potter é um garoto cujos pais, feiticeiros, foram assassinados por um poderosíssimo bruxo quando ele ainda era um bebê. Ele foi levado, então, para a casa dos tios que nada tinham a ver com o sobrenatural. Pelo contrário. Até os 10 anos, Harry foi uma espécie de gata borralheira: maltratado pelos tios, herdava roupas velhas do primo gorducho, tinha óculos remendados e era tratado como um estorvo. No dia de seu aniversário de 11 anos, entretanto, ele parece deslizar por um buraco sem fundo, como o de Alice no país das maravilhas, que o conduz a um mundo mágico. Descobre sua verdadeira história e seu destino: ser um aprendiz de feiticeiro até o dia em que terá que enfrentar a pior força do mal, o homem que assassinou seus pais. O menino de olhos verde, magricela e desengonçado, tão habituado à rejeição, descobre, também, que é um herói no universo dos magos. Potter fica sabendo que é a única pessoa a ter sobrevivido a um ataque do tal bruxo.`,
+    publicCharts: [
+      "Mapa Título - Personagens Livro",
+      "Mapa Título - Personagens Livro",
+      "Mapa Título - Personagens Livro",
+      "Mapa Título - Personagens Livro"
+    ],
+    relatedWorks: [
+      {
+        id: 1,
+        title: "Harry Potter 2",
+        image: "https://plus.unsplash.com/premium_photo-1726768903173-8cac387e97ab?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 2,
+        title: "Harry Potter 3",
+        image: "https://images.unsplash.com/photo-1597590094308-e283f0f2030b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 3,
+        title: "Harry Potter 4",
+        image: "https://images.unsplash.com/photo-1600189261900-da2183219c28?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      }
+    ]
   };
 
-  if (loading) {
-    return (
-      <div className="p-4 flex justify-center items-center h-64">
-        <div className="text-lg">Carregando...</div>
-      </div>
-    );
-  }
+  const handleBack = () => {
+    console.log("Voltar");
+  };
 
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p className="font-bold">Erro</p>
-          <p>{error}</p>
-          <button
-            onClick={() => navigate('/works')}
-            className="mt-2 text-blue-600 hover:underline"
-          >
-            ← Voltar para obras
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+  };
 
-  if (!work) {
-    return (
-      <div className="p-4">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          <p className="font-bold">Obra não encontrada</p>
-          <p>ID: {id}</p>
-          <button
-            onClick={() => navigate('/works')}
-            className="mt-2 text-blue-600 hover:underline"
-          >
-            ← Voltar para obras
-          </button>
-        </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="p-6">
-      {/* Header da Obra */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <button
-          onClick={() => navigate('/works')}
-          className="text-blue-600 hover:underline mb-4"
-        >
-          ← Voltar para obras
+  return(
+    <div className="flex-1 p-8 min-h-screen bg-white rounded-2xl shadow-md ">
+      <div className="flex justify-between">
+        {/* Voltar */}
+        <button 
+          onClick={handleBack}
+          className="flex items-center gap-2 mb-6 text-gray-800 hover:text-gray-900 transition">
+            <ChevronLeftIcon className="size-6 text-gray-800 hover:text-gray-900 transition"/>
+          <span className="font-medium">Voltar</span>
         </button>
+        <span>Editar</span>
+      </div>
 
-        <div className="flex gap-6">
-          {work.imageCover && (
-            <img
-              src={work.imageCover}
+      {/* Body */}
+      <div className="flex gap-8">
+
+        {/* LADO ESQUERDO */}
+        <div className="w-2/5">
+        {/* Imagem de Capa */}
+            <img 
+              src={work.coverImage} 
               alt={work.title}
-              className="w-48 h-72 object-cover rounded"
+              className="w-full h-[400px] object-cover rounded-xl"
             />
-          )}
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2">{work.title}</h1>
-            {work.author && (
-              <p className="text-gray-600 mb-4">por {work.author}</p>
-            )}
-            <p className="text-gray-700 mb-4">{work.description}</p>
-            <div className="flex gap-2">
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded">
-                {work.category}
-              </span>
-              <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded">
-                {work.status}
-              </span>
+
+            {/* Obras Relacionadas */}
+            <div>
+              <h2>Obras Relacionadas:</h2>
+              <div className="flex gap-4">
+              {work.relatedWorks.map((related) => (
+                <div 
+                  key={related.id}
+                  className="cursor-pointer hover:opacity-80 transition"
+                >
+                  <span>{related.title}</span>
+                  <img 
+                    src={related.image} 
+                    alt={related.title}
+                    className="w-full h-[150px] object-cover rounded-lg shadow-sm"
+                  />
+                </div>
+              ))}
+              </div>
             </div>
           </div>
-        </div>
+
+            {/* Informações - LADO DIREITO*/}
+            <div className="flex-1 flex flex-col gap-2">
+              <div className="flex justify-between items-start mb-4">{/* Título + Autoria + Favoritos*/}
+                <div className="flex-1"> {/* Título + Autoria */}
+                  <h2 className="text-3xl font-bold text-myown-primary-500 mb-2">
+                      {work.title}
+                  </h2>
+                  <p className="text-gray-600">
+                      Por: <span className="text-myown-primary-500 font-medium">{work.author}</span>
+                  </p>
+                </div>
+
+                <button 
+                  onClick={toggleFavorite}
+                  className={`p-2 rounded-full transition ${
+                  isFavorite 
+                    ? 'bg-myown-terciary-100 text-myown-primary-500' 
+                    : 'bg-gray-100 text-gray-400 hover:bg-myown-terciary-50 hover:text-myown-terciary-200'
+                }`}>
+                <HeartIcon className={`size-6 ${isFavorite? 'fill-current':''}`}/>
+                </button>
+              </div>
+
+              {/* Descrição */}
+              <div className="text-gray-700 leading-relaxed">
+                <p className={`${!showFullDescription ? 'line-clamp-6' : ''}`}>
+                  {work.description}
+                </p>
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-myown-primary-500 font-medium mt-2 hover:text-myown-primary-600 transition"
+                >
+                  {showFullDescription ? 'Ler menos.' : 'Ler mais.'}
+                </button>
+              </div>
+
+                {/* Charts Públicos */}
+                <h2> Charts Públicos:</h2>
+
+                {/* Meus Charts */}
+                <h2> Meus Charts:</h2>
+
+
+            </div>
+            
       </div>
 
-      {/* Seção de Personagens */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            Personagens ({characters.length})
-          </h2>
-          <button
-            onClick={() => setShowCharacterForm(!showCharacterForm)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            {showCharacterForm ? 'Cancelar' : 'Adicionar Personagem'}
-          </button>
-        </div>
-
-        {showCharacterForm && (
-          <form onSubmit={handleCharacterSubmit} className="bg-gray-50 p-4 rounded mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Nome *</label>
-                <input
-                  type="text"
-                  value={characterForm.name}
-                  onChange={(e) => setCharacterForm({...characterForm, name: e.target.value})}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <input
-                  type="text"
-                  value={characterForm.status}
-                  onChange={(e) => setCharacterForm({...characterForm, status: e.target.value})}
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Vivo, Morto, Desconhecido..."
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">Descrição</label>
-                <textarea
-                  value={characterForm.description}
-                  onChange={(e) => setCharacterForm({...characterForm, description: e.target.value})}
-                  rows="3"
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Apelidos (separados por vírgula)
-                </label>
-                <input
-                  type="text"
-                  value={characterForm.alias}
-                  onChange={(e) => setCharacterForm({...characterForm, alias: e.target.value})}
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Apelido 1, Apelido 2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">URL da Imagem</label>
-                <input
-                  type="text"
-                  value={characterForm.image}
-                  onChange={(e) => setCharacterForm({...characterForm, image: e.target.value})}
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-            >
-              Criar Personagem
-            </button>
-          </form>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {characters.map((character) => (
-            <div
-              key={character._id}
-              onClick={() => navigate(`/characters/${character._id}`)}
-              className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition"
-            >
-              {character.image && (
-                <img
-                  src={character.image}
-                  alt={character.name}
-                  className="w-full h-32 object-cover rounded mb-3"
-                />
-              )}
-              <h3 className="font-bold text-lg mb-1">{character.name}</h3>
-              {character.status && (
-                <p className="text-sm text-gray-600 mb-2">{character.status}</p>
-              )}
-              <p className="text-sm text-gray-700 line-clamp-2">
-                {character.description}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {characters.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            Nenhum personagem cadastrado ainda.
-          </div>
-        )}
-      </div>
     </div>
-  );
-};
+  )
 
-export default WorkDetail;
+}
+
+export default WorkDetails;

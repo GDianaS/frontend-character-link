@@ -11,4 +11,71 @@
 
 @theme{
   --shadow-box-glass:0 10px 25px 0 rgba(0, 0, 0, 0.03);
+
+  /* Cores */
+  --color-myown-bg-50: #EEEFF6; 
+  --color-myown-bg-100: #DDDFEE;
+  --color-myown-bg-200: #BBBFDD;
+  --color-myown-bg-300: #999FCC;
+  --color-myown-bg-400: #777FBB;
+  --color-myown-bg-500: #555FAA;
+
+  --color-myown-primary-50: #F1F0F4;
+  --color-myown-primary-100: #E4E1EA;
+  --color-myown-primary-200: #C8C4D4;
+  --color-myown-primary-300: #ADA6BF;
+  --color-myown-primary-400: #9189A9;
+  --color-myown-primary-500: #847A9F;
+  --color-myown-primary-600: #5E5676;
+  --color-myown-primary-700: #474059;
+  --color-myown-primary-800: #2F2B3B;
+  --color-myown-primary-900: #18151E;
+
+  --color-myown-secundary-50: #F4F0F5;
+  --color-myown-secundary-100: #EAE1EA;
+  --color-myown-secundary-200: #D4C2D6;
+  --color-myown-secundary-300: #BFA4C1;
+  --color-myown-secundary-400: #AA86AC;
+  --color-myown-secundary-500: #946798;
+  --color-myown-secundary-600: #775379;
+  --color-myown-secundary-700: #593E5B;
+  --color-myown-secundary-800: #3B293D;
+  --color-myown-secundary-900: #1E151E;
+
+  --color-myown-terciary-50: #F6EFF5;
+  --color-myown-terciary-100: #EDDEEA;
+  --color-myown-terciary-200: #DBBDD5;
+  --color-myown-terciary-300: #C99CC1;
+  --color-myown-terciary-400: #B77BAC;
+  --color-myown-terciary-500: #A45B97;
+  --color-myown-terciary-600: #844879;
+  --color-myown-terciary-700: #63365B;
+  --color-myown-terciary-800: #42243C;
+  --color-myown-terciary-900: #21121E;
+
+  --color-myown-category-book: #A8C4F0; 
+  --color-myown-category-movie: #F4A6B5;
+  --color-myown-category-manga: #FFB3D9;
+  --color-myown-category-ebook: #C3B8F7;
+  --color-myown-category-novel: #EEC4EE;
+  --color-myown-category-comic: #FFBC99;
+  --color-myown-category-series: #8FD8D3;
+  --color-myown-category-theater: #F1D489;
+  --color-myown-category-audiobook: #88D1D1;
+  --color-myown-category-fanfic: #FFB4CE;
+
+}
+
+h1 {
+  font-weight: bold;
+  font-size: x-large;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: large;
+}
+
+p {
+  font-size: small;
 }
