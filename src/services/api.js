@@ -7,6 +7,35 @@ const api = axios.create({
   },
 });
 
+// Interceptor para adicionar token automaticamente
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor para lidar com erros de autenticação
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Redirecionar para login se não autenticado
+      const isGuest = localStorage.getItem('isGuest') === 'true';
+      if (!isGuest) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // WORKS
 export const workService = {
   getAll: () => api.get('/works'),
@@ -15,6 +44,11 @@ export const workService = {
   update: (id, data) => api.patch(`/works/${id}`, data),
   delete: (id) => api.delete(`/works/${id}`),
   getCharacters: (id) => api.get(`/works/${id}/characters`),
+  
+  // Favoritos (requer autenticação)
+  addFavorite: (id) => api.post(`/works/${id}/favorite`),
+  removeFavorite: (id) => api.delete(`/works/${id}/favorite`),
+  getFavorites: () => api.get('/works/favorites'),
 };
 
 // CHARACTERS
@@ -41,6 +75,16 @@ export const characterService = {
     api.get(`/characters/${characterId}/stats`),
   findShortestPath: (sourceId, targetId) => 
     api.get(`/characters/${sourceId}/path/${targetId}`),
+};
+
+// CHARTS (novos endpoints)
+export const chartService = {
+  getAll: () => api.get('/charts'),
+  getById: (id) => api.get(`/charts/${id}`),
+  create: (data) => api.post('/charts', data),
+  update: (id, data) => api.patch(`/charts/${id}`, data),
+  delete: (id) => api.delete(`/charts/${id}`),
+  saveSnapshot: (id, data) => api.post(`/charts/${id}/snapshot`, data),
 };
 
 export default api;

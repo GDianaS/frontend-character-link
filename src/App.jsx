@@ -1,47 +1,63 @@
-import { useState, useEffect } from 'react'
-import './styles/global.css'
-import axios from "axios"
-import Sidebar from './components/Sidebar'
-import Layout from './scenes/layout'
-import { Routes, Route, Navigate } from "react-router-dom";
-import Works from './scenes/works'
-import Charts from './scenes/charts'
-import WorkDetail from './scenes/workDetail'
-import Home from './scenes/home'
-import WorkCreate from './scenes/workCreate'
-import About from './scenes/about'
-import Library from './scenes/library'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute, UserOnlyRoute } from './components/ProtectedRoute';
+
+// Scenes
+import Login from './scenes/login';
+import Layout from './scenes/layout';
+import Home from './scenes/home';
+import Works from './scenes/works';
+import WorkDetail from './scenes/workDetail';
+import WorkCreate from './scenes/workCreate';
+import Charts from './scenes/charts';
+import Library from './scenes/library';
+import About from './scenes/about';
+
+import './styles/global.css';
 
 function App() {
-  // const [array, setArray] = useState([])
-
-  // const fetchAPI = async () =>{
-  //   const response = await axios.get("http://localhost:8080/api");
-  //   setArray(response.data.fruits);
-  //   console.log(response.data.fruits);
-  // };
-
-  // useEffect(()=>{
-  //   fetchAPI();
-  // }, [])
-
   return (
-    <div>
+    <AuthProvider>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        {/* Rota pública */}
+        <Route path="/login" element={<Login />} />
 
-          <Route index element={<Home/>} />
-          <Route path="/works" element={<Works/>} />
-          <Route path="/creatework" element={<WorkCreate/>} />
-          <Route path="/works/:id" element={<WorkDetail/>}/>
-          <Route path="/charts" element={<Charts/>} />
-          <Route path="/about" element={<About/>} />
-          <Route path="/library" element={<Library/>} />
-
+        {/* Rotas protegidas */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Home />} />
+          <Route path="works" element={<Works />} />
+          <Route path="works/:id" element={<WorkDetail />} />
+          <Route
+            path="works/create"
+            element={
+              <UserOnlyRoute>
+                <WorkCreate />
+              </UserOnlyRoute>
+            }
+          />
+          <Route path="charts" element={<Charts />} />
+          <Route
+            path="library"
+            element={
+              <UserOnlyRoute>
+                <Library />
+              </UserOnlyRoute>
+            }
+          />
+          <Route path="about" element={<About />} />
         </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </div>
-  )
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

@@ -1,17 +1,12 @@
-import React from 'react';
-import { workService } from '../../api';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import Filtro from '../../components/Filtro';
 import SearchBar from '../../components/SearchBar';
 import WorkCard from '../../components/WorkCard';
-import Filtro from '../../components/Filtro';
 
 const Works = () => {
   
   return (
 
-    <div className="flex flex-col">
+    <div className="flex-1 p-8 min-h-screen flex-col">
       <div className="flex">
         <h1>Obras</h1>
         <SearchBar/>
