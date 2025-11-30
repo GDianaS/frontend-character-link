@@ -77,10 +77,15 @@ export const characterService = {
     api.get(`/characters/${sourceId}/path/${targetId}`),
 };
 
-// CHARTS (novos endpoints)
+// CHARTS
 export const chartService = {
+  // Públicos
   getAll: () => api.get('/charts'),
   getById: (id) => api.get(`/charts/${id}`),
+  getByWork: (workId) => api.get(`/charts/work/${workId}`),
+  
+  // Requer autenticação
+  getMyCharts: () => api.get('/charts/my/charts'),
   create: (data) => api.post('/charts', data),
   update: (id, data) => api.patch(`/charts/${id}`, data),
   delete: (id) => api.delete(`/charts/${id}`),

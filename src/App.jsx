@@ -10,6 +10,7 @@ import Works from './scenes/works';
 import WorkDetail from './scenes/workDetail';
 import WorkCreate from './scenes/workCreate';
 import Charts from './scenes/charts';
+import ChartCreate from './scenes/charts/ChartCreate';
 import Library from './scenes/library';
 import About from './scenes/about';
 
@@ -42,7 +43,21 @@ function App() {
               </UserOnlyRoute>
             }
           />
+
+          {/* Charts - todos podem acessar, mas só usuários salvam */}
           <Route path="charts" element={<Charts />} />
+          <Route path="charts/:id" element={<Charts />} />
+            
+            {/* Criar chart - só usuários */}
+          <Route
+            path="charts/create"
+            element={
+              <UserOnlyRoute>
+                <ChartCreate />
+              </UserOnlyRoute>
+            }
+          />
+
           <Route
             path="library"
             element={
