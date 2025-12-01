@@ -38,7 +38,10 @@ api.interceptors.response.use(
 
 // WORKS
 export const workService = {
-  getAll: () => api.get('/works'),
+  //getAll: () => api.get('/works'),//sem paginação
+  getAll: (page = 1, limit = 18) => 
+  api.get(`/works?page=${page}&limit=${limit}`), // com controle de paginação
+
   getById: (id) => api.get(`/works/${id}`),
   create: (data) => api.post('/works', data),
   update: (id, data) => api.patch(`/works/${id}`, data),

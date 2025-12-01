@@ -10,7 +10,7 @@ import Works from './scenes/works';
 import WorkDetail from './scenes/workDetail';
 import WorkCreate from './scenes/workCreate';
 import Charts from './scenes/charts';
-import ChartCreate from './scenes/charts/ChartCreate';
+import ChartCreate from './scenes/charts/components/ChartCreate';
 import Library from './scenes/library';
 import About from './scenes/about';
 

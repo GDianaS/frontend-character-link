@@ -47,6 +47,7 @@ const tags = [
   const handleClearFilters = () => {
     setSortBy("az");
     setSelectedTags([]);
+    onApplyFilters({ sortBy: "az", selectedTags: [] });
   };
 
   return (

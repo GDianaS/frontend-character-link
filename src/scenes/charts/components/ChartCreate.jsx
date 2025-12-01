@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { chartService, workService } from '../../services/api';
-import { useAuth } from '../../contexts/AuthContext';
+import { chartService, workService } from '../../../services/api';
+import { useAuth } from '../../../contexts/AuthContext';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 function ChartCreate() {
@@ -76,7 +76,7 @@ function ChartCreate() {
       navigate(`/charts/${chartId}`);
     } catch (error) {
       console.error('Erro ao criar chart:', error);
-      alert('Erro ao criar chart');
+      alert('Erro ao criar chart', error);
     } finally {
       setLoading(false);
     }
