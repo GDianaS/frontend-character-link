@@ -1,5 +1,8 @@
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useAuth } from "../../../contexts/AuthContext";
+import { workService } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 
 // Componente Input Customizado
 function InputCustom({
@@ -68,30 +71,40 @@ function SelectCustom({ label, name, value, onChange, options, required = false 
 
 function FormCreateWork(){
 
+    const navigate = useNavigate();
+    const { canSave } = useAuth();
+
     const [formData, setFormData] = useState({
         title: "",
         subtitle: "",
         author: "",
         description: "",
+        status:"notStarted",
         category: "",
-        isPrivate: false,
+        isPublic: false,
         imageCover: null,
     });
 
     const [imagePreview, setImagePreview] = useState(null);
 
     const categories = [
-        { value: "livro", label: "Livro" },
-        { value: "filme", label: "Filme" },
+        { value: "book", label: "Livro" },
+        { value: "movie", label: "Filme" },
         { value: "serie", label: "Série" },
         { value: "manga", label: "Mangá" },
         { value: "ebook", label: "E-book" },
         { value: "novel", label: "Novel" },
-        { value: "hq", label: "HQ" },
-        { value: "teatro", label: "Teatro" },
+        { value: "comic", label: "HQ" },
+        { value: "theater", label: "Teatro" },
         { value: "audiobook", label: "Audiobook" },
         { value: "fanfic", label: "Fanfic" },
     ];
+
+    const statusOptions = [
+        {value: "notStarted", label:"A começar"},
+        {value: "inProgress", label:"Em progresso"},
+        {value: "completed", label:"Concluído"},
+    ]
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -113,8 +126,39 @@ function FormCreateWork(){
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+
+        if(!canSave){
+            alert('Faça login para criar obras!');
+            return;
+        }
+
+        if(!formData.title){
+            alert('Por favor, preencha o título!');
+            return;
+        }
+
+        if(!formData.category){
+            alert('Por favor, escolha a categoria!');
+            return;
+        }
         console.log("Enviando para o banco:", formData);
+
+        try{
+            const response = await workService.create({
+                ...formData
+            })
+
+            const workId = response.data.data.work._id;
+            navigate(`/works/${workId}`);
+            
+        }catch(error){
+            console.error('Error ao criar obra:', error);
+            alert('Error ao criar obra!');
+        }
+        
+
     };
 
     const handleCancel = () => {
@@ -186,23 +230,33 @@ function FormCreateWork(){
                     options={categories}
                     required
                 />
+                <SelectCustom
+                    label="Andamento"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    options={statusOptions}
+                />
                 <div>
                     <label className="block mb-2 text-sm font-bold text-myown-primary-500">
                         Privacidade
                     </label>
                     {/* Switch Toogle */}
                     <div className="inline-flex gap-2">
-                        <div class="relative inline-block w-11 h-5">
-                            <input id="switch-component-desc" type="checkbox" class="peer appearance-none w-11 h-5 bg-slate-100 rounded-full checked:bg-myown-primary-400 cursor-pointer transition-colors duration-300" />
-                            <label for="switch-component-desc" class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-myown-primary-300 cursor-pointer">
+                        <div className="relative inline-block w-11 h-5">
+                            <input id="switch-component-desc" type="checkbox" className="peer appearance-none w-11 h-5 bg-slate-100 rounded-full checked:bg-myown-primary-400 cursor-pointer transition-colors duration-300" 
+                            name="isPublic"
+                            checked={formData.isPublic}
+                            onChange={handleChange}/>
+                            <label htmlFor="switch-component-desc" className="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-myown-primary-300 cursor-pointer">
                             </label>
                         </div>
 
                         <label>
-                            <p class="font-medium">
+                            <p className="font-medium">
                                 Público
                             </p>
-                            <p class="text-slate-500">
+                            <p className="text-slate-500 text-sx">
                                 Ao tornar esta obra pública, ela ficará visível para todos os usuários da plataforma.
                             </p>
                         </label>
@@ -265,7 +319,7 @@ function FormCreateWork(){
                     onClick={handleSubmit}
                     className="px-8 py-3 bg-myown-primary-500 text-white font-semibold rounded-lg hover:bg-myown-primary-600 transition shadow-md text-sm"
                 >
-                    Próximo
+                    Salvar
                 </button>
             </div>
 

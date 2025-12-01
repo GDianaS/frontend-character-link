@@ -1,10 +1,13 @@
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 import FormCreateWork from "./components/FormCreateWork";
+import { useNavigate } from "react-router-dom";
 
 function WorkCreate(){
 
+    const navigate = useNavigate();
+
     const handleBack = () => {
-        console.log("Voltar");
+        navigate(-1)
     };
 
     return(

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const StatsCard = ({value, label, bgColor='bg-myown-primary-400'}) => {
     return(
@@ -22,6 +23,7 @@ const StatsCard = ({value, label, bgColor='bg-myown-primary-400'}) => {
 }
 
 const Home = () => {
+    const navigate = useNavigate();
     return (
         <div className="flex-1 p-8 min-h-screen">
             {/* Banner */}
@@ -61,7 +63,9 @@ const Home = () => {
                     <div className="flex-1">
                         <div className="flex justify-between items-center mb-4">
                             <h2>Obras Recentes:</h2>
-                            <button className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg">
+                            <button 
+                            onClick={() => navigate('/works/create')}
+                            className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg">
                                 Nova Obra
                             </button>
                         </div>
@@ -75,6 +79,7 @@ const Home = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2>Charts Recentes:</h2>
                             <button 
+                               onClick={() => navigate('/charts/create')}
                                 className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg"
                             >
                                 Novo Chart
