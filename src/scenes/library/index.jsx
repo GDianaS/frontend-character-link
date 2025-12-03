@@ -5,71 +5,6 @@ import { chartService, workService } from '../../services/api';
 import { DocumentTextIcon, EllipsisVerticalIcon, PencilSquareIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ChartActionsMenu from '../../components/ChartActionsMenu';
 
-// Componente Menu de Ações
-// function ActionMenu({ chartId }) {
-//     const [isOpen, setIsOpen] = useState(false);
-
-//     const handleEdit = () => {
-//         console.log('Editar chart:', chartId);
-//         setIsOpen(false);
-//     };
-
-//     const handleRename = () => {
-//         console.log('Renomear chart:', chartId);
-//         setIsOpen(false);
-//     };
-
-//     const handleDelete = () => {
-//         console.log('Deletar chart:', chartId);
-//         setIsOpen(false);
-//     };
-
-//     return (
-//         <div className="relative">
-//             <button
-//                 onClick={() => setIsOpen(!isOpen)}
-//                 className="p-2 hover:bg-gray-100 rounded-lg transition"
-//             >
-//                 <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
-//             </button>
-
-//             {isOpen && (
-//                 <>
-//                     <div 
-//                         className="fixed inset-0 z-10" 
-//                         onClick={() => setIsOpen(false)}
-//                     />
-//                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-//                         <button
-//                             onClick={handleEdit}
-//                             className="flex items-center gap-3 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-lg"
-//                         >
-//                             <PencilSquareIcon className="w-4 h-4" />
-//                             Editar
-//                         </button>
-//                         <button
-//                             onClick={handleRename}
-//                             className="flex items-center gap-3 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition"
-//                         >
-                            
-//                             <DocumentTextIcon className="w-4 h-4" />
-//                             Renomear
-//                         </button>
-//                         <button
-//                             onClick={handleDelete}
-//                             className="flex items-center gap-3 w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition rounded-b-lg"
-//                         >
-//                             <TrashIcon className="w-4 h-4" />
-//                             Deletar
-//                         </button>
-//                     </div>
-//                 </>
-//             )}
-//         </div>
-//     );
-// }
-
-
 function ChartsTable() {
   const [charts, setCharts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -187,10 +122,6 @@ function ChartsTable() {
                 </span>
               </td>
               <td className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
-                {/* <ActionMenu 
-                  chartId={chart._id}
-                  onDelete={() => handleDelete(chart._id)}
-                /> */}
                 <ChartActionsMenu
                   chart={chart}
                   onEdit={() => navigate(`/charts/${chart._id}`)}
@@ -209,7 +140,7 @@ function ChartsTable() {
 
 function Library() {
   return (
-    <div className="flex-1 p-8 min-h-screen bg-gray-50">
+    <div className="flex-1 p-8 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Minha Biblioteca</h1>
         <div className="flex gap-3">

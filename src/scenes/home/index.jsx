@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { workService, chartService } from '../../services/api'
+import { Book, Film, Tv, Image } from 'lucide-react'
 
 const StatsCard = ({value, label, bgColor='bg-myown-primary-400'}) => {
     return(
@@ -22,8 +24,112 @@ const StatsCard = ({value, label, bgColor='bg-myown-primary-400'}) => {
     )
 }
 
+const WorkItem = ({ work, onClick }) => {
+    const getCategoryIcon = (category) => {
+        const icons = {
+            'livro': <Book size={20} className="text-white" />,
+            'filme': <Film size={20} className="text-white" />,
+            'série': <Tv size={20} className="text-white" />,
+        };
+        return icons[category] || <Image size={20} className="text-white" />;
+    };
+
+    return (
+        <div 
+            onClick={onClick}
+            className="flex flex-col gap-2 p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition group min-w-[140px] max-w-[140px]"
+        >
+            {work.imageCover ? (
+                <img 
+                    src={work.imageCover} 
+                    alt={work.title}
+                    className="w-full h-32 rounded-lg object-cover"
+                />
+            ) : (
+                <div className="w-full h-32 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                    {getCategoryIcon(work.category)}
+                </div>
+            )}
+            <div className="flex flex-col">
+                <p className="text-sm font-medium text-gray-800 truncate group-hover:text-myown-primary-600">
+                    {work.title}
+                </p>
+                <p className="text-xs text-gray-500 capitalize">{work.category}</p>
+            </div>
+        </div>
+    );
+};
+
+const ChartItem = ({ chart, onClick }) => {
+    return (
+        <div 
+            onClick={onClick}
+            className="flex flex-col gap-2 p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition group min-w-[140px] max-w-[140px]"
+        >
+            <div className="w-full h-32 rounded-lg bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center">
+                <div className="text-white text-2xl font-bold">
+                    {chart.stats?.totalNodes || 0}
+                </div>
+            </div>
+            <div className="flex flex-col">
+                <p className="text-sm font-medium text-gray-800 truncate group-hover:text-myown-primary-600">
+                    {chart.title}
+                </p>
+                <p className="text-xs text-gray-500">
+                    {chart.works?.length || 0} {chart.works?.length === 1 ? 'obra' : 'obras'}
+                </p>
+            </div>
+        </div>
+    );
+};
+
 const Home = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        totalWorks: 0,
+        totalCharacters: 0,
+        totalCharts: 0
+    });
+    const [recentWorks, setRecentWorks] = useState([]);
+    const [recentCharts, setRecentCharts] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    // Buscar estatísticas
+                    const statsResponse = await workService.getStats();
+                    setStats(statsResponse.data.data.stats);
+
+                    // Buscar obras recentes
+                    const worksResponse = await workService.getRecent(5);
+                    setRecentWorks(worksResponse.data.data.works);
+
+                    // Buscar charts recentes
+                    const chartsResponse = await chartService.getRecent(5);
+                    setRecentCharts(chartsResponse.data.data.charts);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex-1 p-8 min-h-screen flex items-center justify-center">
+                <div className="animate-pulse text-gray-400">Carregando...</div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex-1 p-8 min-h-screen">
             {/* Banner */}
@@ -35,17 +141,17 @@ const Home = () => {
 
                 <div className="flex gap-4">
                     <StatsCard 
-                        value="200 +" 
+                        value={stats.totalWorks} 
                         label="Obras" 
                         bgColor="bg-myown-primary-400"
                     />
                     <StatsCard 
-                        value="400 +" 
+                        value={stats.totalCharacters} 
                         label="Personagens" 
                         bgColor="bg-myown-secundary-400"
                     />
                     <StatsCard 
-                        value="500 +" 
+                        value={stats.totalCharts} 
                         label="Charts Criados" 
                         bgColor="bg-myown-terciary-400"
                     />
@@ -64,13 +170,28 @@ const Home = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2>Obras Recentes:</h2>
                             <button 
-                            onClick={() => navigate('/works/create')}
-                            className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg">
+                                onClick={() => navigate('/works/create')}
+                                className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-myown-primary-600 transition"
+                            >
                                 Nova Obra
                             </button>
                         </div>
                         <div>
-                            <p className="text-gray-500 text-center py-12">Suas obras recentes aparecerão aqui.</p>
+                            {recentWorks.length > 0 ? (
+                                <div className="flex gap-4 overflow-x-auto pb-2">
+                                    {recentWorks.map(work => (
+                                        <WorkItem 
+                                            key={work._id} 
+                                            work={work}
+                                            onClick={() => navigate(`/works/${work._id}`)}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 text-center py-12">
+                                    Suas obras recentes aparecerão aqui.
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -79,14 +200,28 @@ const Home = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2>Charts Recentes:</h2>
                             <button 
-                               onClick={() => navigate('/charts/create')}
-                                className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg"
+                                onClick={() => navigate('/charts/create')}
+                                className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-myown-primary-600 transition"
                             >
                                 Novo Chart
                             </button>
                         </div>
                         <div>
-                            <p className="text-gray-500 text-center py-12">Seus charts recentes aparecerão aqui</p>
+                            {recentCharts.length > 0 ? (
+                                <div className="flex gap-4 overflow-x-auto pb-2">
+                                    {recentCharts.map(chart => (
+                                        <ChartItem 
+                                            key={chart._id} 
+                                            chart={chart}
+                                            onClick={() => navigate(`/charts/${chart._id}`)}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 text-center py-12">
+                                    Seus charts recentes aparecerão aqui
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -110,20 +245,26 @@ const Home = () => {
                     <div className="bg-white p-6 rounded-2xl shadow-sm">
                         <h2 className="mb-4">Adicionados Recentemente:</h2>
                         <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition">
-                                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-800">Harry Potter</p>
-                                    <p className="text-xs text-gray-500">livro</p>
+                            {recentWorks.slice(0, 3).map((work, index) => (
+                                <div 
+                                    key={work._id}
+                                    onClick={() => navigate(`/works/${work._id}`)}
+                                    className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${
+                                        index === 0 ? 'bg-purple-500' : 
+                                        index === 1 ? 'bg-pink-500' : 
+                                        'bg-blue-500'
+                                    }`} />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-800">{work.title}</p>
+                                        <p className="text-xs text-gray-500">{work.category}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition">
-                                <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-800">Stranger Things</p>
-                                    <p className="text-xs text-gray-500">série</p>
-                                </div>
-                            </div>
+                            ))}
+                            {recentWorks.length === 0 && (
+                                <p className="text-gray-400 text-sm">Nenhuma obra adicionada ainda</p>
+                            )}
                         </div>
                     </div>
                 </div>

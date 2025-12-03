@@ -37,27 +37,13 @@ api.interceptors.response.use(
 );
 
 // WORKS
-// export const workService = {
-//   //getAll: () => api.get('/works'),//sem paginação
-//   getAll: (page = 1, limit = 18) => 
-//   api.get(`/works?page=${page}&limit=${limit}`), // com controle de paginação
-
-//   getById: (id) => api.get(`/works/${id}`),
-//   create: (data) => api.post('/works', data),
-//   update: (id, data) => api.patch(`/works/${id}`, data),
-//   delete: (id) => api.delete(`/works/${id}`),
-//   getCharacters: (id) => api.get(`/works/${id}/characters`),
-  
-//   // Favoritos (requer autenticação)
-//   addFavorite: (id) => api.post(`/works/${id}/favorite`),
-//   removeFavorite: (id) => api.delete(`/works/${id}/favorite`),
-//   getFavorites: () => api.get('/works/favorites'),
-// };
-
-// WORKS
 export const workService = {
   getAll: () => api.get('/works'),
   getById: (id) => api.get(`/works/${id}`),
+
+   // Estatísticas e obras recentes
+  getStats: () => api.get('/works/user/stats'),
+  getRecent: (limit = 5) => api.get(`/works/user/recent?limit=${limit}`),
   
   // ATUALIZADO: Aceitar FormData
   create: (data) => {
@@ -122,6 +108,7 @@ export const chartService = {
   
   // Requer autenticação
   getMyCharts: () => api.get('/charts/my/charts'),
+  getRecent: (limit = 5) => api.get(`/charts/user/recent?limit=${limit}`),
   create: (data) => api.post('/charts', data),
   update: (id, data) => api.patch(`/charts/${id}`, data),
   delete: (id) => api.delete(`/charts/${id}`),
