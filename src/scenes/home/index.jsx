@@ -124,14 +124,14 @@ const Home = () => {
 
     if (loading) {
         return (
-            <div className="flex-1 p-8 min-h-screen flex items-center justify-center">
+            <div className="flex-1 min-h-screen flex items-center justify-center">
                 <div className="animate-pulse text-gray-400">Carregando...</div>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 p-8 min-h-screen">
+        <div className="flex-1 min-h-screen">
             {/* Banner */}
             <div className="flex bg-white px-10 py-8 rounded-2xl shadow-md gap-10">
                 <div className="flex flex-col gap-6">
@@ -162,7 +162,7 @@ const Home = () => {
             <div className="h-4"/>
 
             {/* BODY */}
-            <div className="flex gap-6 mt-8">
+            <div className="flex gap-6 mt-4">
                 {/* Lado Esquerdo */}
                 <div className="flex-1 flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm">
                     {/* Obras Recentes */}
@@ -171,7 +171,7 @@ const Home = () => {
                             <h2>Obras Recentes:</h2>
                             <button 
                                 onClick={() => navigate('/works/create')}
-                                className="bg-myown-primary-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-myown-primary-600 transition"
+                                className="bg-myown-primary-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-myown-primary-600 transition"
                             >
                                 Nova Obra
                             </button>
@@ -196,7 +196,7 @@ const Home = () => {
                     </div>
 
                     {/* Charts Recentes */}
-                    <div className="mt-8">
+                    <div className="mt-4">
                         <div className="flex justify-between items-center mb-4">
                             <h2>Charts Recentes:</h2>
                             <button 

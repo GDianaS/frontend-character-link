@@ -8,23 +8,37 @@ function WorkCard({ data }) {
 
   return (
     <div
-      className="flex flex-col gap-2 cursor-pointer hover:opacity-90 transition"
       onClick={() => navigate(`/works/${_id}`)}
+      className="
+        flex flex-col gap-3 cursor-pointer
+        bg-white 
+        p-3 rounded-xl shadow-md 
+        hover:shadow-xl hover:-translate-y-1
+        transition-all duration-300
+      "
     >
       {/* Imagem */}
-      {/* <div className="bg-myown-bg-50 w-[120px] h-[150px] rounded-md shadow-sm" /> */}
+      <div className="w-full h-50 overflow-hidden rounded-lg bg-neutral-200">
+        <img
+          src={imageCover}
+          alt={title}
+          className="
+            w-full h-full object-cover
+            transition-transform duration-500
+            hover:scale-105
+          "
+        />
+      </div>
 
-      <div className="">
-            <img 
-              src={imageCover || 'https://placehold.co/400x600/e2e8f0/64748b?text=Sem+Imagem'}
-              alt={title}
-              className="w-[120px] h-[150px] object-cover rounded-xl"
-            />
-          </div>
+      {/* Categoria */}
+      <div>
+        <CategoryTag category={category} />
+      </div>
 
-      <span className="text-sm font-medium">{title}</span>
-
-      <CategoryTag category={category} />
+      {/* Título */}
+      <h3 className="text-lg font-semibold text-neutral-900">
+        {title}
+      </h3>
     </div>
   );
 }

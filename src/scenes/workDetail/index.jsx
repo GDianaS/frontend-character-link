@@ -5,11 +5,13 @@ import {
   PencilSquareIcon 
 } from "@heroicons/react/24/outline";
 
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { workService } from "../../services/api";
 import AddCharacter from "../../components/AddCharacter";
 import { useAuth } from '../../contexts/AuthContext';
+import WorkPrivacyToggle from "../../components/WorkPrivacyToggle";
 
 const WorkDetails = () => {
   const { id } = useParams();
@@ -29,6 +31,7 @@ const WorkDetails = () => {
   const [editSubtitle, setEditSubtitle] = useState("");
   const [editAuthor, setEditAuthor] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [editIsPublic, setEditIsPublic] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -36,26 +39,6 @@ const WorkDetails = () => {
       loadCharacters();
     }
   }, [id]);
-
-  // const loadWorkDetails = async () => {
-  //   try {
-  //     const response = await workService.getById(id);
-  //     const workData = response.data.data.work;
-
-  //     setWork(workData);
-
-  //     setEditTitle(workData.title);
-  //     setEditSubtitle(workData.subtitle);
-  //     setEditAuthor(workData.author);
-  //     setEditDescription(workData.description);
-
-  //   } catch (error) {
-  //     console.error('Erro ao carregar obra:', error);
-  //     alert('Erro ao carregar detalhes da obra');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const loadWorkDetails = async () => {
     try {
@@ -71,6 +54,8 @@ const WorkDetails = () => {
       setEditSubtitle(workData.subtitle || '');
       setEditAuthor(workData.author || '');
       setEditDescription(workData.description || '');
+      setEditIsPublic(Boolean(workData.isPublic));
+
     } catch (error) {
       console.error('Erro ao carregar obra:', error);
       alert('Erro ao carregar detalhes da obra');
@@ -111,6 +96,7 @@ const WorkDetails = () => {
         subtitle: editSubtitle,
         author: editAuthor,
         description: editDescription,
+        isPublic: editIsPublic
       });
 
       alert("Obra atualizada com sucesso!");
@@ -318,51 +304,104 @@ const WorkDetails = () => {
 
       {/* Modal Editar Obra */}
       {showEditWorkModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Editar Obra</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
 
-            <div className="flex flex-col gap-4">
-              <input
-                className="border p-2 rounded"
-                placeholder="Título"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-              />
+          <div className="
+            w-full max-w-lg 
+            bg-white/90 
+            backdrop-blur-xl 
+            rounded-2xl 
+            shadow-2xl 
+            p-8 
+            animate-fadeIn 
+            border border-white/40
+          ">
+            
+            {/* TÍTULO */}
+            <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+              Editar Obra
+            </h2>
 
-              <input
-                className="border p-2 rounded"
-                placeholder="Subtítulo"
-                value={editSubtitle}
-                onChange={(e) => setEditSubtitle(e.target.value)}
-              />
+            {/* CAMPOS */}
+            <div className="space-y-6">
 
-              <input
-                className="border p-2 rounded"
-                placeholder="Autor"
-                value={editAuthor}
-                onChange={(e) => setEditAuthor(e.target.value)}
-              />
+              {/* Campo Título */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Título</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                            focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                            outline-none transition bg-white"
+                  placeholder="Título da obra"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                />
+              </div>
 
-              <textarea
-                className="border p-2 rounded min-h-[120px]"
-                placeholder="Descrição"
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-              />
+              {/* Campo Subtítulo */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Subtítulo</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                            focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                            outline-none transition bg-white"
+                  placeholder="Subtítulo da obra"
+                  value={editSubtitle}
+                  onChange={(e) => setEditSubtitle(e.target.value)}
+                />
+              </div>
+
+              {/* Campo Autor */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Autor</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                            focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                            outline-none transition bg-white"
+                  placeholder="Nome do autor"
+                  value={editAuthor}
+                  onChange={(e) => setEditAuthor(e.target.value)}
+                />
+              </div>
+
+              {/* Campo Descrição */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Descrição</label>
+                <textarea
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                            focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                            outline-none transition bg-white min-h-[130px]"
+                  placeholder="Descrição detalhada da obra"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                />
+              </div>
+
             </div>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <WorkPrivacyToggle
+              isPublic={editIsPublic}
+              onChange={setEditIsPublic}
+            />
+
+
+            {/* BOTÕES */}
+            <div className="flex justify-end gap-4 mt-10">
+
               <button
                 onClick={() => setShowEditWorkModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 
+                          transition font-medium"
               >
                 Cancelar
               </button>
 
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                className="px-6 py-2 rounded-xl 
+                          bg-purple-600 text-white 
+                          hover:bg-purple-700 transition 
+                          shadow-md hover:shadow-lg font-medium"
               >
                 Salvar
               </button>
@@ -370,6 +409,8 @@ const WorkDetails = () => {
           </div>
         </div>
       )}
+
+
 
     </div>
   );
