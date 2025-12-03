@@ -78,10 +78,10 @@ function Login() {
             💡 Modo Convidado:
           </h3>
           <ul className="text-xs text-purple-700 space-y-1">
-            <li>✓ Acesse todas as obras cadastradas</li>
-            <li>✓ Visualize mapas de personagens</li>
+            <li>✓ Acesse obras cadastradas</li>
             <li>✓ Crie mapas temporários</li>
-            <li>✗ Não é possível salvar ou favoritar</li>
+            <li>✓ Faça o download de seu mapa</li>
+            <li>✗ Não é possível salvar mapa ou criar obra</li>
           </ul>
         </div>
       </div>

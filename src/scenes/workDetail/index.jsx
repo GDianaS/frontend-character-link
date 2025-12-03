@@ -67,6 +67,7 @@ const WorkDetails = () => {
   const loadCharacters = async () => {
     try {
       const response = await workService.getCharacters(id);
+      console.log(response);
       setCharacters(response.data.data.characters || []);
     } catch (error) {
       console.error('Erro ao carregar personagens:', error);
