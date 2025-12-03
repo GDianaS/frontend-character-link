@@ -1,10 +1,436 @@
+// import { 
+//   ArrowLeftIcon, 
+//   HeartIcon, 
+//   PlusIcon, 
+//   PencilSquareIcon 
+// } from "@heroicons/react/24/outline";
+
+
+// import React, { useState, useEffect } from 'react';
+// import { useParams, useNavigate } from 'react-router-dom';
+// import { workService } from "../../services/api";
+// import AddCharacter from "../../components/AddCharacter";
+// import { useAuth } from '../../contexts/AuthContext';
+// import WorkPrivacyToggle from "../../components/WorkPrivacyToggle";
+
+// const WorkDetails = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const { canFavorite, canCreateWork, canEditWork, isGuest, user } = useAuth();
+
+//   const [work, setWork] = useState(null);
+//   const [characters, setCharacters] = useState([]);
+//   const [isFavorite, setIsFavorite] = useState(false);
+//   const [showFullDescription, setShowFullDescription] = useState(false);
+//   const [loading, setLoading] = useState(true);
+
+//   const [showAddCharacter, setShowAddCharacter] = useState(false);
+//   const [showEditWorkModal, setShowEditWorkModal] = useState(false);
+
+//   const [editTitle, setEditTitle] = useState("");
+//   const [editSubtitle, setEditSubtitle] = useState("");
+//   const [editAuthor, setEditAuthor] = useState("");
+//   const [editDescription, setEditDescription] = useState("");
+//   const [editIsPublic, setEditIsPublic] = useState(false);
+
+//   useEffect(() => {
+//     if (id) {
+//       loadWorkDetails();
+//       loadCharacters();
+//     }
+//   }, [id]);
+
+//   const loadWorkDetails = async () => {
+//     try {
+//       const response = await workService.getById(id);
+//       const workData = response.data.data.work;
+
+//       // console.log("📦 Obra carregada:", workData);
+//       // console.log("👤 Creator da obra:", workData.creator);
+//       // console.log("🔑 User logado:", user);
+
+//       setWork(workData);
+//       setEditTitle(workData.title || '');
+//       setEditSubtitle(workData.subtitle || '');
+//       setEditAuthor(workData.author || '');
+//       setEditDescription(workData.description || '');
+//       setEditIsPublic(Boolean(workData.isPublic));
+
+//     } catch (error) {
+//       console.error('Erro ao carregar obra:', error);
+//       alert('Erro ao carregar detalhes da obra');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const loadCharacters = async () => {
+//     try {
+//       const response = await workService.getCharacters(id);
+//       console.log(response);
+//       setCharacters(response.data.data.characters || []);
+//     } catch (error) {
+//       console.error('Erro ao carregar personagens:', error);
+//     }
+//   };
+
+//   const handleBack = () => {
+//     navigate(-1);
+//   };
+
+//   const toggleFavorite = () => {
+//     if (!canFavorite()) {
+//       alert('Faça login para favoritar obras!');
+//       return;
+//     }
+//     setIsFavorite(!isFavorite);
+//   };
+
+//   const handleCharacterAdded = (newCharacter) => {
+//     setCharacters([...characters, newCharacter]);
+//   };
+
+//   const handleSaveEdit = async () => {
+//     try {
+//       await workService.update(id, {
+//         title: editTitle,
+//         subtitle: editSubtitle,
+//         author: editAuthor,
+//         description: editDescription,
+//         isPublic: editIsPublic
+//       });
+
+//       alert("Obra atualizada com sucesso!");
+//       setShowEditWorkModal(false);
+//       loadWorkDetails();
+//     } catch (err) {
+//       console.error(err);
+//       alert("Erro ao atualizar obra!");
+//     }
+//   };
+
+//   if (loading) {
+//     return (
+//       <div className="flex items-center justify-center min-h-screen">
+//         <p className="text-gray-500">Carregando...</p>
+//       </div>
+//     );
+//   }
+
+//   if (!work) {
+//     return (
+//       <div className="flex items-center justify-center min-h-screen">
+//         <p className="text-gray-500">Obra não encontrada</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="flex-1 p-8 min-h-screen bg-gray-50">
+
+//       {/* TESTE - DEV */}
+//       {work && (
+//         <div className="mb-4 p-4 bg-blue-50 rounded-lg text-xs">
+//           <p><strong>Debug Info:</strong></p>
+//           <p>User ID: {user?.id}</p>
+//           <p>Creator ID: {work.creator?._id || work.creator || 'null'}</p>
+//           <p>Pode editar: {canEditWork(work) ? 'SIM' : 'NÃO'}</p>
+//         </div>
+//       )}
+      
+//       {/* Voltar */}
+//       <button 
+//         onClick={handleBack}
+//         className="flex items-center gap-2 mb-6 text-gray-700 hover:text-gray-900 transition"
+//       >
+//         <ArrowLeftIcon className="w-5 h-5" />
+//         <span className="font-medium">Voltar</span>
+//       </button>
+
+//       {/* Layout principal */}
+//       <div className="flex gap-8">
+
+//         {/* Imagem */}
+//         <div className="w-2/5">
+//           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+//             <img 
+//               src={work.imageCover || 'https://placehold.co/400x600/e2e8f0/64748b?text=Sem+Imagem'}
+//               alt={work.title}
+//               className="w-full h-[500px] object-cover rounded-xl"
+//             />
+//           </div>
+
+//           {/* BOTÃO EDITAR — somente criador ou admin */}
+//           {canEditWork(work) && (
+//             <div className="flex gap-4">
+//               <button
+//                 onClick={() => setShowEditWorkModal(true)}
+//                 className="w-full bg-purple-500 text-white py-3 rounded-xl font-medium hover:bg-purple-600 transition flex items-center justify-center gap-2"
+//               >
+//                 <PencilSquareIcon className="w-5 h-5" />
+//                 Editar Obra
+//               </button>
+//               <button>
+//                 Deletar Obra
+//               </button>
+//             </div>
+//           )}
+//         </div>
+
+//         {/* Informações */}
+//         <div className="flex-1 flex flex-col gap-6">
+
+//           <div className="bg-white rounded-2xl shadow-md p-6">
+//             <div className="flex justify-between items-start mb-4">
+
+//               <div className="flex-1">
+//                 <h1 className="text-3xl font-bold text-purple-600 mb-2">
+//                   {work.title}
+//                 </h1>
+
+//                 {work.subtitle && (
+//                   <h2 className="text-xl text-gray-600 mb-2">{work.subtitle}</h2>
+//                 )}
+
+//                 <p className="text-gray-600">
+//                   Por:{" "}
+//                   <span className="text-purple-500 font-medium">
+//                     {work.author}
+//                   </span>
+//                 </p>
+
+//                 {work.creator && (
+//                   <p className="text-sm text-gray-500 mt-1">
+//                     Criado por:{" "}
+//                     <span className="font-medium text-gray-700">
+//                       {work.creator.name}
+//                     </span>
+//                   </p>
+//                 )}
+//               </div>
+
+//               {/* Favoritar */}
+//               <button
+//                 onClick={toggleFavorite}
+//                 disabled={!canFavorite()}
+//                 className={`p-3 rounded-full transition ${
+//                   isFavorite 
+//                     ? "bg-red-100 text-red-500"
+//                     : canFavorite()
+//                     ? "bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-400"
+//                     : "bg-gray-100 text-gray-300 cursor-not-allowed"
+//                 }`}
+//               >
+//                 <HeartIcon className={`w-6 h-6 ${isFavorite ? "fill-current" : ""}`} />
+//               </button>
+
+//             </div>
+
+//             {/* Descrição */}
+//             {work.description && (
+//               <div className="text-gray-700 leading-relaxed">
+//                 <p className={`${!showFullDescription ? "line-clamp-6" : ""}`}>
+//                   {work.description}
+//                 </p>
+
+//                 {work.description.length > 300 && (
+//                   <button
+//                     onClick={() => setShowFullDescription(!showFullDescription)}
+//                     className="text-purple-500 font-medium mt-2 hover:text-purple-600 transition"
+//                   >
+//                     {showFullDescription ? "Ler menos..." : "Ler mais..."}
+//                   </button>
+//                 )}
+//               </div>
+//             )}
+//           </div>
+
+//           {/* Personagens */}
+//           <div className="bg-white rounded-2xl shadow-md p-6">
+//             <div className="flex justify-between items-center mb-4">
+//               <h3 className="text-xl font-bold text-gray-800">
+//                 Personagens ({characters.length})
+//               </h3>
+
+//               {/* Criador ou admin podem adicionar personagem */}
+//               {canCreateWork() && (
+//                 <button
+//                   onClick={() => setShowAddCharacter(true)}
+//                   className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition"
+//                 >
+//                   <PlusIcon className="w-5 h-5" />
+//                   Adicionar
+//                 </button>
+//               )}
+//             </div>
+
+//             {characters.length === 0 ? (
+//               <div className="text-center py-8 text-gray-500">
+//                 Nenhum personagem cadastrado.
+//               </div>
+//             ) : (
+//               <div className="grid grid-cols-2 gap-4">
+//                 {characters.map((character) => (
+//                   <div
+//                     key={character._id}
+//                     className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+//                   >
+//                     <h4 className="font-semibold text-gray-800">{character.name}</h4>
+//                     {character.description && (
+//                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+//                         {character.description}
+//                       </p>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+//           </div>
+
+//           {/* Categoria */}
+//           <div className="bg-white rounded-2xl shadow-md p-6">
+//             <div className="flex items-center gap-3">
+//               <span className="text-gray-700 font-medium">Categoria:</span>
+//               <span className="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-sm font-medium">
+//                 {work.category}
+//               </span>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Modal Add Personagem */}
+//       {showAddCharacter && (
+//         <AddCharacter
+//           workId={id}
+//           onClose={() => setShowAddCharacter(false)}
+//           onSuccess={handleCharacterAdded}
+//         />
+//       )}
+
+//       {/* Modal Editar Obra */}
+//       {showEditWorkModal && (
+//         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+
+//           <div className="
+//             w-full max-w-lg 
+//             bg-white/90 
+//             backdrop-blur-xl 
+//             rounded-2xl 
+//             shadow-2xl 
+//             p-8 
+//             animate-fadeIn 
+//             border border-white/40
+//           ">
+            
+//             {/* TÍTULO */}
+//             <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+//               Editar Obra
+//             </h2>
+
+//             {/* CAMPOS */}
+//             <div className="space-y-6">
+
+//               {/* Campo Título */}
+//               <div className="flex flex-col gap-1">
+//                 <label className="text-sm font-medium text-gray-700">Título</label>
+//                 <input
+//                   className="w-full px-4 py-3 rounded-xl border border-gray-300 
+//                             focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+//                             outline-none transition bg-white"
+//                   placeholder="Título da obra"
+//                   value={editTitle}
+//                   onChange={(e) => setEditTitle(e.target.value)}
+//                 />
+//               </div>
+
+//               {/* Campo Subtítulo */}
+//               <div className="flex flex-col gap-1">
+//                 <label className="text-sm font-medium text-gray-700">Subtítulo</label>
+//                 <input
+//                   className="w-full px-4 py-3 rounded-xl border border-gray-300 
+//                             focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+//                             outline-none transition bg-white"
+//                   placeholder="Subtítulo da obra"
+//                   value={editSubtitle}
+//                   onChange={(e) => setEditSubtitle(e.target.value)}
+//                 />
+//               </div>
+
+//               {/* Campo Autor */}
+//               <div className="flex flex-col gap-1">
+//                 <label className="text-sm font-medium text-gray-700">Autor</label>
+//                 <input
+//                   className="w-full px-4 py-3 rounded-xl border border-gray-300 
+//                             focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+//                             outline-none transition bg-white"
+//                   placeholder="Nome do autor"
+//                   value={editAuthor}
+//                   onChange={(e) => setEditAuthor(e.target.value)}
+//                 />
+//               </div>
+
+//               {/* Campo Descrição */}
+//               <div className="flex flex-col gap-1">
+//                 <label className="text-sm font-medium text-gray-700">Descrição</label>
+//                 <textarea
+//                   className="w-full px-4 py-3 rounded-xl border border-gray-300 
+//                             focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+//                             outline-none transition bg-white min-h-[130px]"
+//                   placeholder="Descrição detalhada da obra"
+//                   value={editDescription}
+//                   onChange={(e) => setEditDescription(e.target.value)}
+//                 />
+//               </div>
+
+//             </div>
+
+//             <WorkPrivacyToggle
+//               isPublic={editIsPublic}
+//               onChange={setEditIsPublic}
+//             />
+
+
+//             {/* BOTÕES */}
+//             <div className="flex justify-end gap-4 mt-10">
+
+//               <button
+//                 onClick={() => setShowEditWorkModal(false)}
+//                 className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 
+//                           transition font-medium"
+//               >
+//                 Cancelar
+//               </button>
+
+//               <button
+//                 onClick={handleSaveEdit}
+//                 className="px-6 py-2 rounded-xl 
+//                           bg-purple-600 text-white 
+//                           hover:bg-purple-700 transition 
+//                           shadow-md hover:shadow-lg font-medium"
+//               >
+//                 Salvar
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+
+
+//     </div>
+//   );
+// };
+
+// export default WorkDetails;
+
 import { 
   ArrowLeftIcon, 
   HeartIcon, 
   PlusIcon, 
-  PencilSquareIcon 
+  PencilSquareIcon,
+  TrashIcon
 } from "@heroicons/react/24/outline";
-
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -26,6 +452,7 @@ const WorkDetails = () => {
 
   const [showAddCharacter, setShowAddCharacter] = useState(false);
   const [showEditWorkModal, setShowEditWorkModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [editTitle, setEditTitle] = useState("");
   const [editSubtitle, setEditSubtitle] = useState("");
@@ -45,10 +472,6 @@ const WorkDetails = () => {
       const response = await workService.getById(id);
       const workData = response.data.data.work;
 
-      // console.log("📦 Obra carregada:", workData);
-      // console.log("👤 Creator da obra:", workData.creator);
-      // console.log("🔑 User logado:", user);
-
       setWork(workData);
       setEditTitle(workData.title || '');
       setEditSubtitle(workData.subtitle || '');
@@ -67,7 +490,6 @@ const WorkDetails = () => {
   const loadCharacters = async () => {
     try {
       const response = await workService.getCharacters(id);
-      console.log(response);
       setCharacters(response.data.data.characters || []);
     } catch (error) {
       console.error('Erro ao carregar personagens:', error);
@@ -109,6 +531,17 @@ const WorkDetails = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await workService.delete(id);
+      alert("Obra deletada com sucesso!");
+      navigate('/works'); // Redireciona para a lista de obras
+    } catch (error) {
+      console.error('Erro ao deletar obra:', error);
+      alert("Erro ao deletar obra!");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -127,16 +560,6 @@ const WorkDetails = () => {
 
   return (
     <div className="flex-1 p-8 min-h-screen bg-gray-50">
-
-      {/* TESTE - DEV */}
-      {work && (
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg text-xs">
-          <p><strong>Debug Info:</strong></p>
-          <p>User ID: {user?.id}</p>
-          <p>Creator ID: {work.creator?._id || work.creator || 'null'}</p>
-          <p>Pode editar: {canEditWork(work) ? 'SIM' : 'NÃO'}</p>
-        </div>
-      )}
       
       {/* Voltar */}
       <button 
@@ -160,15 +583,24 @@ const WorkDetails = () => {
             />
           </div>
 
-          {/* BOTÃO EDITAR — somente criador ou admin */}
+          {/* BOTÕES DE AÇÃO — somente criador */}
           {canEditWork(work) && (
-            <button
-              onClick={() => setShowEditWorkModal(true)}
-              className="w-full bg-yellow-500 text-white py-3 rounded-xl font-medium hover:bg-yellow-600 transition flex items-center justify-center gap-2"
-            >
-              <PencilSquareIcon className="w-5 h-5" />
-              Editar Obra
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowEditWorkModal(true)}
+                className="flex-1 bg-purple-500 text-white py-3 rounded-xl font-medium hover:bg-purple-600 transition flex items-center justify-center gap-2"
+              >
+                <PencilSquareIcon className="w-5 h-5" />
+                Editar Obra
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex-1 bg-red-500 text-white py-3 rounded-xl font-medium hover:bg-red-600 transition flex items-center justify-center gap-2"
+              >
+                <TrashIcon className="w-5 h-5" />
+                Deletar
+              </button>
+            </div>
           )}
         </div>
 
@@ -306,27 +738,13 @@ const WorkDetails = () => {
       {/* Modal Editar Obra */}
       {showEditWorkModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-
-          <div className="
-            w-full max-w-lg 
-            bg-white/90 
-            backdrop-blur-xl 
-            rounded-2xl 
-            shadow-2xl 
-            p-8 
-            animate-fadeIn 
-            border border-white/40
-          ">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8">
             
-            {/* TÍTULO */}
             <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
               Editar Obra
             </h2>
 
-            {/* CAMPOS */}
             <div className="space-y-6">
-
-              {/* Campo Título */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Título</label>
                 <input
@@ -339,7 +757,6 @@ const WorkDetails = () => {
                 />
               </div>
 
-              {/* Campo Subtítulo */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Subtítulo</label>
                 <input
@@ -352,7 +769,6 @@ const WorkDetails = () => {
                 />
               </div>
 
-              {/* Campo Autor */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Autor</label>
                 <input
@@ -365,7 +781,6 @@ const WorkDetails = () => {
                 />
               </div>
 
-              {/* Campo Descrição */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Descrição</label>
                 <textarea
@@ -378,17 +793,13 @@ const WorkDetails = () => {
                 />
               </div>
 
+              <WorkPrivacyToggle
+                isPublic={editIsPublic}
+                onChange={setEditIsPublic}
+              />
             </div>
 
-            <WorkPrivacyToggle
-              isPublic={editIsPublic}
-              onChange={setEditIsPublic}
-            />
-
-
-            {/* BOTÕES */}
             <div className="flex justify-end gap-4 mt-10">
-
               <button
                 onClick={() => setShowEditWorkModal(false)}
                 className="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 
@@ -411,7 +822,66 @@ const WorkDetails = () => {
         </div>
       )}
 
+      {/* Modal Confirmar Deletar */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+            
+            {/* Ícone de Alerta */}
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <TrashIcon className="w-8 h-8 text-red-600" />
+              </div>
+            </div>
 
+            {/* Título */}
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+              Deletar Obra
+            </h2>
+
+            {/* Descrição */}
+            <p className="text-gray-600 text-center mb-2">
+              Tem certeza que deseja deletar a obra
+            </p>
+            <p className="text-gray-800 font-semibold text-center mb-6">
+              "{work.title}"?
+            </p>
+
+            {/* Aviso */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-red-700">
+                ⚠️ <strong>Esta ação não pode ser desfeita!</strong>
+              </p>
+              <ul className="text-xs text-red-600 mt-2 ml-4 list-disc">
+                <li>A obra será deletada permanentemente</li>
+                <li>Todos os personagens ({characters.length}) serão removidos</li>
+                <li>Os dados não poderão ser recuperados</li>
+              </ul>
+            </div>
+
+            {/* Botões */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-3 rounded-xl bg-gray-200 hover:bg-gray-300 
+                          transition font-medium text-gray-700"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={handleDelete}
+                className="flex-1 px-4 py-3 rounded-xl 
+                          bg-red-600 text-white 
+                          hover:bg-red-700 transition 
+                          shadow-md hover:shadow-lg font-medium"
+              >
+                Sim, Deletar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -15,6 +15,7 @@ function WorkCard({ data }) {
         p-3 rounded-xl shadow-md 
         hover:shadow-xl hover:-translate-y-1
         transition-all duration-300
+        min-h-[320px]
       "
     >
       {/* Imagem */}
@@ -36,7 +37,7 @@ function WorkCard({ data }) {
       </div>
 
       {/* Título */}
-      <h3 className="text-lg font-semibold text-neutral-900">
+      <h3 className="text-base font-semibold text-neutral-900 leading-snug line-clamp-2">
         {title}
       </h3>
     </div>
