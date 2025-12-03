@@ -62,9 +62,9 @@ const WorkDetails = () => {
       const response = await workService.getById(id);
       const workData = response.data.data.work;
 
-      console.log("📦 Obra carregada:", workData);
-      console.log("👤 Creator da obra:", workData.creator);
-      console.log("🔑 User logado:", user);
+      // console.log("📦 Obra carregada:", workData);
+      // console.log("👤 Creator da obra:", workData.creator);
+      // console.log("🔑 User logado:", user);
 
       setWork(workData);
       setEditTitle(workData.title || '');
@@ -167,7 +167,7 @@ const WorkDetails = () => {
         <div className="w-2/5">
           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
             <img 
-              src={work.image || 'https://placehold.co/400x600/e2e8f0/64748b?text=Sem+Imagem'}
+              src={work.imageCover || 'https://placehold.co/400x600/e2e8f0/64748b?text=Sem+Imagem'}
               alt={work.title}
               className="w-full h-[500px] object-cover rounded-xl"
             />

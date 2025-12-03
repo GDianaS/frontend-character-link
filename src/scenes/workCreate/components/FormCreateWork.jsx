@@ -1,110 +1,21 @@
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { useAuth } from "../../../contexts/AuthContext";
 import { workService } from "../../../services/api";
 import { useNavigate } from "react-router-dom";
 
-// Componente Input Customizado
-function InputCustom({
-    label,
-    name,
-    placeholder,
-    type = "text",
-    value,
-    onChange,
-    required = false,
-    halfWidth = false
-}){
-    const id = name || label.toLowerCase().replace(" ", "-");
-
-    return(
-        <div className={`${halfWidth ? 'w-1/2' : 'w-full'}`}>
-            <label 
-                htmlFor={id} 
-                className="block mb-2 text-sm font-bold text-myown-primary-500"
-            >
-                {label}
-            </label>
-            <input
-                id={id}
-                name={name}
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                required={required}
-                className="w-full px-4 py-2.5 text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-myown-primary-500 focus:border-transparent transition"
-            />
-        </div>
-    )
-
-};
-
-// Componente Select Customizado
-function SelectCustom({ label, name, value, onChange, options, required = false }) {
-    return (
-        <div className="w-full">
-            <label 
-                htmlFor={name} 
-                className="block mb-2 text-sm font-bold text-myown-primary-500"
-            >
-                {label}
-            </label>
-            <select
-                id={name}
-                name={name}
-                value={value}
-                onChange={onChange}
-                required={required}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-myown-primary-500 focus:border-transparent transition bg-white text-[12px]"
-            >
-                <option value="">Selecione Categoria</option>
-                {options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.label}
-                    </option>
-                ))}
-            </select>
-        </div>
-    );
-}
-
-function FormCreateWork(){
-
+function FormCreateWork() {
     const navigate = useNavigate();
-    const { canSave } = useAuth();
-
     const [formData, setFormData] = useState({
         title: "",
         subtitle: "",
         author: "",
         description: "",
-        status:"notStarted",
+        status: "notStarted",
         category: "",
         isPublic: false,
-        imageCover: null,
     });
-
+    const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-
-    const categories = [
-        { value: "book", label: "Livro" },
-        { value: "movie", label: "Filme" },
-        { value: "serie", label: "Série" },
-        { value: "manga", label: "Mangá" },
-        { value: "ebook", label: "E-book" },
-        { value: "novel", label: "Novel" },
-        { value: "comic", label: "HQ" },
-        { value: "theater", label: "Teatro" },
-        { value: "audiobook", label: "Audiobook" },
-        { value: "fanfic", label: "Fanfic" },
-    ];
-
-    const statusOptions = [
-        {value: "notStarted", label:"A começar"},
-        {value: "inProgress", label:"Em progresso"},
-        {value: "completed", label:"Concluído"},
-    ]
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -117,7 +28,7 @@ function FormCreateWork(){
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData({ ...formData, imageCover: file });
+            setImageFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
@@ -126,158 +37,139 @@ function FormCreateWork(){
         }
     };
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if(!canSave){
-            alert('Faça login para criar obras!');
+        if (!formData.title || !formData.category) {
+            alert('Título e categoria são obrigatórios');
             return;
         }
 
-        if(!formData.title){
-            alert('Por favor, preencha o título!');
-            return;
-        }
-
-        if(!formData.category){
-            alert('Por favor, escolha a categoria!');
-            return;
-        }
-        console.log("Enviando para o banco:", formData);
-
-        try{
-            const response = await workService.create({
-                ...formData
-            })
-
-            const workId = response.data.data.work._id;
-            navigate(`/works/${workId}`);
+        setLoading(true);
+        try {
+            // Criar FormData para enviar arquivo
+            const formDataToSend = new FormData();
             
-        }catch(error){
-            console.error('Error ao criar obra:', error);
-            alert('Error ao criar obra!');
+            // Adicionar campos de texto
+            Object.keys(formData).forEach(key => {
+                formDataToSend.append(key, formData[key]);
+            });
+
+            // Adicionar imagem se houver
+            if (imageFile) {
+                formDataToSend.append('imageCover', imageFile);
+            }
+
+            const response = await workService.create(formDataToSend);
+            
+            alert('Obra criada com sucesso!');
+            navigate(`/works/${response.data.data.work._id}`);
+        } catch (error) {
+            console.error('Erro ao criar obra:', error);
+            alert(error.response?.data?.message || 'Erro ao criar obra');
+        } finally {
+            setLoading(false);
         }
-        
-
     };
 
-    const handleCancel = () => {
-        console.log("Cancelar");
-    };
-
-    return(
-        <div className="mt-6 p-4">
-
-            {/* Linha 1: Título e Subtítulo */}
-            <div className="flex gap-6 mb-6">
-                <InputCustom
-                    label="Título"
+    return (
+        <form onSubmit={handleSubmit} className="mt-6">
+            {/* Título */}
+            <div className="mb-5">
+                <label className="block mb-2 text-sm font-medium text-gray-600">
+                    Título *
+                </label>
+                <input
                     name="title"
-                    placeholder="Harry Potter"
                     value={formData.title}
                     onChange={handleChange}
+                    placeholder="Ex: Harry Potter"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
-                    halfWidth
                 />
-                <InputCustom
-                    label="Subtítulo"
+            </div>
+
+            {/* Subtítulo */}
+            <div className="mb-5">
+                <label className="block mb-2 text-sm font-medium text-gray-600">
+                    Subtítulo
+                </label>
+                <input
                     name="subtitle"
-                    placeholder="E a pedra filosofal"
                     value={formData.subtitle}
                     onChange={handleChange}
-                    halfWidth
+                    placeholder="Ex: E a Pedra Filosofal"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
             </div>
 
-            {/* Linha 2: Autoria */}
-            <div className="mb-6">
-                <InputCustom
-                    label="Autoria"
+            {/* Autor */}
+            <div className="mb-5">
+                <label className="block mb-2 text-sm font-medium text-gray-600">
+                    Autor
+                </label>
+                <input
                     name="author"
-                    placeholder="J. K. Rowling"
                     value={formData.author}
                     onChange={handleChange}
-                    required
+                    placeholder="Ex: J.K. Rowling"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
             </div>
 
-            {/* Linha 3: Descrição */}
-            <div className="mb-6">
-                <label 
-                    htmlFor="description" 
-                    className="block mb-2 text-sm font-bold text-myown-primary-500"
-                >
+            {/* Descrição */}
+            <div className="mb-5">
+                <label className="block mb-2 text-sm font-medium text-gray-600">
                     Descrição
                 </label>
                 <textarea
-                    id="description"
                     name="description"
-                    rows="5"
                     value={formData.description}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 text-[12px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-myown-primary-500 focus:border-transparent transition resize-none"
-                    placeholder="Harry Potter nunca havia ouvido falar de Hogwarts quando as cartas começaram a aparecer no capacho da Rua dos Alfeneiros, nº 4. Escritos a tinta verde-esmeralda em pergaminho amarelado com um lacre de cera púrpura, as cartas eram rapidamente confiscadas por seus pavorosos tio e tia. Então, no aniversário de onze anos de Harry, um gigante com olhos que luziam como besouros negros chamado Rúbeo Hagrid surge com notícias surpreendentes: Harry Potter é um bruxo e tem uma vaga na Escola de Magia e Bruxaria de Hogwarts. Uma incrível aventura está para começar!"
+                    rows="5"
+                    placeholder="Descreva a obra..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 />
             </div>
 
-            {/* Linha 4: Categoria e Privacidade */}
-            <div className="flex gap-6 mb-6">
-                <SelectCustom
-                    label="Categoria"
+            {/* Categoria */}
+            <div className="mb-5">
+                <label className="block mb-2 text-sm font-medium text-gray-600">
+                    Categoria *
+                </label>
+                <select
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
-                    options={categories}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
-                />
-                <SelectCustom
-                    label="Andamento"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    options={statusOptions}
-                />
-                <div>
-                    <label className="block mb-2 text-sm font-bold text-myown-primary-500">
-                        Privacidade
-                    </label>
-                    {/* Switch Toogle */}
-                    <div className="inline-flex gap-2">
-                        <div className="relative inline-block w-11 h-5">
-                            <input id="switch-component-desc" type="checkbox" className="peer appearance-none w-11 h-5 bg-slate-100 rounded-full checked:bg-myown-primary-400 cursor-pointer transition-colors duration-300" 
-                            name="isPublic"
-                            checked={formData.isPublic}
-                            onChange={handleChange}/>
-                            <label htmlFor="switch-component-desc" className="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-myown-primary-300 cursor-pointer">
-                            </label>
-                        </div>
-
-                        <label>
-                            <p className="font-medium">
-                                Público
-                            </p>
-                            <p className="text-slate-500 text-sx">
-                                Ao tornar esta obra pública, ela ficará visível para todos os usuários da plataforma.
-                            </p>
-                        </label>
-
-                    </div>
-
-                </div>
+                >
+                    <option value="">Selecione uma categoria</option>
+                    <option value="book">Livro</option>
+                    <option value="movie">Filme</option>
+                    <option value="serie">Série</option>
+                    <option value="manga">Mangá</option>
+                    <option value="ebook">E-book</option>
+                    <option value="novel">Novel</option>
+                    <option value="comic">HQ</option>
+                    <option value="theater">Teatro</option>
+                    <option value="audiobook">Audiobook</option>
+                    <option value="fanfic">Fanfic</option>
+                </select>
             </div>
 
-             {/* Linha 5: Upload de Imagem */}
-            <div className="mb-8">
-                <label className="block mb-2 text-sm font-bold text-myown-primary-500">
-                    Foto de Capa
+            {/* Upload de Imagem */}
+            <div className="mb-5">
+                <label className="block mb-2 text-sm font-medium text-gray-600">
+                    Imagem de Capa
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-myown-primary-500 transition">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition">
                     {imagePreview ? (
                         <div className="flex flex-col items-center gap-4">
-                            <img 
-                                src={imagePreview} 
-                                alt="Preview" 
-                                className="max-h-48 rounded-lg shadow-md"
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
+                                className="max-h-64 rounded-lg shadow-md"
                             />
                             <label className="cursor-pointer text-purple-600 hover:text-purple-700 font-medium">
                                 Alterar imagem
@@ -290,10 +182,12 @@ function FormCreateWork(){
                             </label>
                         </div>
                     ) : (
-                        <label className="cursor-pointer">
-                            <ArrowUpTrayIcon className="w-12 h-12 mb-3 text-gray-400"/>
-                            <p className="text-gray-600 font-medium mb-1">Upload Foto de Capa</p>
-                            <p className="text-sm text-gray-500">Clique para selecionar uma imagem</p>
+                        <label className="cursor-pointer block">
+                            <svg className="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p className="text-gray-600 font-medium mb-1">Clique para selecionar uma imagem</p>
+                            <p className="text-xs text-gray-500">PNG, JPG, WEBP (máx 5MB)</p>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -305,29 +199,25 @@ function FormCreateWork(){
                 </div>
             </div>
 
-            {/* Botões de Ação */}
-            <div className="flex justify-center gap-10">
+            {/* Botões */}
+            <div className="flex justify-end gap-4">
                 <button
                     type="button"
-                    onClick={handleCancel}
-                    className="px-8 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition text-sm"
+                    onClick={() => navigate(-1)}
+                    className="px-6 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
                 >
                     Cancelar
                 </button>
                 <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="px-8 py-3 bg-myown-primary-500 text-white font-semibold rounded-lg hover:bg-myown-primary-600 transition shadow-md text-sm"
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-2.5 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition disabled:opacity-50"
                 >
-                    Salvar
+                    {loading ? 'Criando...' : 'Criar Obra'}
                 </button>
             </div>
-
-
-        </div>
-    
-    )
+        </form>
+    );
 }
-
 
 export default FormCreateWork;

@@ -4,7 +4,7 @@ import CategoryTag from "./CategoryTag";
 function WorkCard({ data }) {
   const navigate = useNavigate();
 
-  const { _id, title, category } = data;
+  const { _id, title, category, imageCover } = data;
 
   return (
     <div
@@ -12,7 +12,15 @@ function WorkCard({ data }) {
       onClick={() => navigate(`/works/${_id}`)}
     >
       {/* Imagem */}
-      <div className="bg-myown-bg-50 w-[120px] h-[150px] rounded-md shadow-sm" />
+      {/* <div className="bg-myown-bg-50 w-[120px] h-[150px] rounded-md shadow-sm" /> */}
+
+      <div className="">
+            <img 
+              src={imageCover || 'https://placehold.co/400x600/e2e8f0/64748b?text=Sem+Imagem'}
+              alt={title}
+              className="w-[120px] h-[150px] object-cover rounded-xl"
+            />
+          </div>
 
       <span className="text-sm font-medium">{title}</span>
 
