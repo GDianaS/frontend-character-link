@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { characterService } from '../services/api';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 
 function AddCharacter({ workId, onClose, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -10,8 +10,6 @@ function AddCharacter({ workId, onClose, onSuccess }) {
         status: 'alive',
         defaultColor: '#A8C4F0'
     });
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const colors = [
@@ -33,19 +31,6 @@ function AddCharacter({ workId, onClose, onSuccess }) {
         });
     };
 
-    // ✅ CORRIGIDO: hadleImageChange → handleImageChange
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -59,7 +44,7 @@ function AddCharacter({ workId, onClose, onSuccess }) {
             const characterData = {
                 ...formData,
                 alias: formData.alias ? formData.alias.split(',').map(a => a.trim()) : [],
-                image: imagePreview || '' // Por enquanto vazio, trataremos depois
+                image: ''
             };
             
             const response = await characterService.createForWork(workId, characterData);
@@ -76,11 +61,17 @@ function AddCharacter({ workId, onClose, onSuccess }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+                
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h2 className="text-2xl font-bold text-gray-800">Adicionar Personagem</h2>
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <UserPlusIcon className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800">Adicionar Personagem</h2>
+                    </div>
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -90,10 +81,11 @@ function AddCharacter({ workId, onClose, onSuccess }) {
                 </div>
 
                 {/* Form */}
-                <div className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    
                     {/* Nome */}
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
                             Nome do Personagem *
                         </label>
                         <input
@@ -102,14 +94,16 @@ function AddCharacter({ workId, onClose, onSuccess }) {
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="Ex: Harry Potter"
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                                     focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                                     outline-none transition bg-white"
                             required
                         />
                     </div>
 
                     {/* Apelidos */}
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
                             Apelidos / Aliases
                         </label>
                         <input
@@ -117,17 +111,19 @@ function AddCharacter({ workId, onClose, onSuccess }) {
                             name="alias"
                             value={formData.alias}
                             onChange={handleChange}
-                            placeholder="Ex: O Menino que Sobreviveu, O Eleito (separados por vírgula)"
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Ex: O Menino que Sobreviveu, O Eleito"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                                     focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                                     outline-none transition bg-white"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                            Separe múltiplos apelidos com vírgula
+                            💡 Separe múltiplos apelidos com vírgula
                         </p>
                     </div>
 
                     {/* Descrição */}
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
                             Descrição
                         </label>
                         <textarea
@@ -135,31 +131,35 @@ function AddCharacter({ workId, onClose, onSuccess }) {
                             value={formData.description}
                             onChange={handleChange}
                             rows="4"
-                            placeholder="Descreva o personagem..."
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                            placeholder="Descreva o personagem, sua personalidade, aparência..."
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                                     focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                                     outline-none transition bg-white resize-none"
                         />
                     </div>
 
                     {/* Status */}
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
                             Status
                         </label>
                         <select
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 
+                                     focus:border-purple-500 focus:ring-2 focus:ring-purple-200
+                                     outline-none transition bg-white cursor-pointer"
                         >
-                            <option value="alive">Vivo</option>
-                            <option value="dead">Morto</option>
-                            <option value="unknown">Desconhecido</option>
+                            <option value="alive">✨ Vivo</option>
+                            <option value="dead">💀 Morto</option>
+                            <option value="unknown">❓ Desconhecido</option>
                         </select>
                     </div>
 
                     {/* Cor Padrão */}
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
+                    <div className="flex flex-col gap-3">
+                        <label className="text-sm font-medium text-gray-700">
                             Cor Padrão no Mapa
                         </label>
                         <div className="grid grid-cols-4 gap-3">
@@ -168,55 +168,95 @@ function AddCharacter({ workId, onClose, onSuccess }) {
                                     key={color.value}
                                     type="button"
                                     onClick={() => setFormData({ ...formData, defaultColor: color.value })}
-                                    className={`p-3 rounded-lg border-2 transition ${
+                                    className={`relative p-4 rounded-xl border-2 transition group ${
                                         formData.defaultColor === color.value
-                                            ? 'border-purple-500 ring-2 ring-purple-200'
-                                            : 'border-gray-200 hover:border-gray-300'
+                                            ? 'border-purple-500 bg-purple-50 shadow-md'
+                                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                                     }`}
-                                    style={{ backgroundColor: `${color.value}40` }}
                                 >
                                     <div
-                                        className="w-8 h-8 rounded-full mx-auto"
+                                        className="w-10 h-10 rounded-full mx-auto shadow-sm"
                                         style={{ backgroundColor: color.value }}
                                     />
-                                    <p className="text-xs text-gray-600 mt-1 text-center">{color.name}</p>
+                                    <p className={`text-xs mt-2 text-center font-medium transition ${
+                                        formData.defaultColor === color.value
+                                            ? 'text-purple-700'
+                                            : 'text-gray-600 group-hover:text-gray-800'
+                                    }`}>
+                                        {color.name}
+                                    </p>
+                                    
+                                    {/* Checkmark */}
+                                    {formData.defaultColor === color.value && (
+                                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center shadow-md">
+                                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    )}
                                 </button>
                             ))}
                         </div>
+                        <p className="text-xs text-gray-500">
+                            🎨 Esta cor será usada para representar o personagem nos mapas de relacionamentos
+                        </p>
                     </div>
 
-                    {/* Upload de Imagem - Por enquanto desabilitado */}
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">
-                            Imagem do Personagem
-                        </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-                            <div className="text-gray-400 mb-2">
-                                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    {/* Info de Imagem */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <p className="text-gray-500 font-medium">Upload de imagens em breve</p>
-                            <p className="text-xs text-gray-400 mt-1">Esta funcionalidade será implementada posteriormente</p>
+                            <div>
+                                <p className="text-sm font-medium text-blue-900">
+                                    Upload de imagens em breve
+                                </p>
+                                <p className="text-xs text-blue-700 mt-1">
+                                    A funcionalidade de adicionar imagens aos personagens será implementada em uma atualização futura.
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                </form>
 
                 {/* Footer */}
-                <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
+                <div className="flex justify-end gap-4 p-6 border-t border-gray-200 bg-gray-50 sticky bottom-0">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
+                        className="px-6 py-3 rounded-xl bg-gray-200 hover:bg-gray-300 
+                                 transition font-medium text-gray-700"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={loading || !formData.name}
-                        className="px-6 py-2.5 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-3 rounded-xl 
+                                 bg-purple-600 text-white 
+                                 hover:bg-purple-700 transition 
+                                 shadow-md hover:shadow-lg font-medium
+                                 disabled:opacity-50 disabled:cursor-not-allowed
+                                 flex items-center gap-2"
                     >
-                        {loading ? 'Adicionando...' : 'Adicionar Personagem'}
+                        {loading ? (
+                            <>
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Adicionando...
+                            </>
+                        ) : (
+                            <>
+                                <UserPlusIcon className="w-5 h-5" />
+                                Adicionar Personagem
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
